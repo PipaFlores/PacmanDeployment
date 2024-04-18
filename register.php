@@ -1,11 +1,12 @@
 <?php
 $username = $_POST['username'];
-$password = $_POST['password']; // Consider using password_hash() in a real application
+$password = $_POST['password']; 
+$email = $_POST['email'];
 
 // Hash the password using bcrypt algorithm
 $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-$file = 'credentials.csv'; // Or .txt, depending on your preference
+$file = 'Data/credentials.csv'; // Or .txt, depending on your preference
 
 // Attempt to read the existing credentials
 if (($handle = fopen($file, "a+")) !== FALSE) {
@@ -17,7 +18,7 @@ if (($handle = fopen($file, "a+")) !== FALSE) {
         }
     }
     // Username doesn't exist, write the new user with hashed password
-    fputcsv($handle, array($username, $hashedPassword));
+    fputcsv($handle, array($username, $hashedPassword, $email));
     echo "User registered successfully";
     fclose($handle);
 } else {
