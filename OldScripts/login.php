@@ -2,7 +2,7 @@
 $username = $_POST['username'];
 $password = $_POST['password']; // The password attempt from the user
 
-$file = 'credentials.csv';
+$file = 'Data/credentials.csv';
 
 // Flag to track if username is found
 $usernameFound = false;

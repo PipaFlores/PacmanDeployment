@@ -1,6 +1,6 @@
 <?php
 
-$filePath = "gameData.csv"; // Path to your CSV file
+$filePath = "Data/gameData.csv"; // Path to your CSV file
 
 // Define your CSV header
 $header = "source;PlayerPositionX;PlayerPositionY;Ghosts1;Ghost2;Ghost3;Ghost4;Score;LivesRemaining;TimeElapsed;IP;DateTime\n";
