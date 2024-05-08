@@ -30,11 +30,11 @@ if ($result->num_rows === 0) {
     // Fetch hashed password from the database
     $row = $result->fetch_assoc();
     $hashed_password = $row['password'];
+    $user_id = $row['user_id'];
 
     // Verify the hashed password
     if (password_verify($password, $hashed_password)) {
         echo "Login successful";
-        $user_id = $result->fetch_assoc()['user_id']; // Assuming user_id is fetched from the 'user' table
         $current_ip = getClientIP();
 
         // Check if the current IP is already registered
