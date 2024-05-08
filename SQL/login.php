@@ -1,4 +1,6 @@
 <?php
+include 'db_connect.php';
+
 $username = $_POST['username'];
 $password = $_POST['password']; // The password attempt from the user
 
