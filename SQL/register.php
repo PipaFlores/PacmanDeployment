@@ -44,7 +44,7 @@ if ($stmt->execute()) {
     $ip_address = getClientIP(); // Get the IP address of the user
 
     // Insert IP address into user_ip table
-    $sql = "INSERT INTO user_ip (user_id, ip_address, timestamp) VALUES (?, ?, NOW())";
+    $sql = "INSERT INTO userip (user_id, ip_address, timestamp) VALUES (?, ?, NOW())";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("is", $user_id, $ip_address);
     if ($stmt->execute()) {
