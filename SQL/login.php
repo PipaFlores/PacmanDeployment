@@ -31,12 +31,17 @@ if ($result->num_rows === 0) {
     $row = $result->fetch_assoc();
     $hashed_password = $row['password'];
     $user_id = $row['user_id'];
+    echo "User ID: $user_id";  // See what's in user_id
 
+    if ($user_id === null) {
+        echo "Error: User ID is null.";
+        exit; // Stop further execution if user_id is null
+    }
     // Verify the hashed password
     if (password_verify($password, $hashed_password)) {
         echo "Login successful";
         $current_ip = getClientIP();
-
+        echo "Current IP: $current_ip";
         // Check if the current IP is already registered
         $sql = "SELECT ip_id FROM userip WHERE user_id = ? AND ip_address = ?";
         $stmt = $conn->prepare($sql);
