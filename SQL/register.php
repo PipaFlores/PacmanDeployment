@@ -27,6 +27,15 @@ $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
+
+// check that there are no empty fields
+if (empty($username) || empty($password) || empty($email)) {
+    echo "Please fill in all fields";
+    $stmt->close();
+    $conn->close();
+    exit;
+}
+
 if ($result->num_rows > 0) {
     echo "Username already exists";
     $stmt->close();
