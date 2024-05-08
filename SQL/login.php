@@ -16,7 +16,8 @@ function getClientIP() {
 }
 
 $username = $_POST['username'];
-$password = $_POST['password']; // The password attempt from the user
+$password = $_POST['password'];
+$response = ['success' => false, 'message' => '', 'user_id' => null];
 
 // Prepare a statement to prevent SQL injection
 $stmt = $conn->prepare("SELECT user_id, password FROM user WHERE username = ?");
@@ -25,48 +26,47 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows === 0) {
-    echo "Username does not exist";
+    $response['message'] = "Username does not exist";
 } else {
-    // Fetch hashed password from the database
     $row = $result->fetch_assoc();
-    $hashed_password = $row['password'];
-    $user_id = $row['user_id'];
-    echo "User ID: $user_id";  // See what's in user_id
-
-    if ($user_id === null) {
-        echo "Error: User ID is null.";
-        exit; // Stop further execution if user_id is null
-    }
-    // Verify the hashed password
-    if (password_verify($password, $hashed_password)) {
-        echo "Login successful";
-        $current_ip = getClientIP();
-        echo "Current IP: $current_ip";
-        // Check if the current IP is already registered
-        $sql = "SELECT ip_id FROM userip WHERE user_id = ? AND ip_address = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("is", $user_id, $current_ip);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        if ($result->num_rows === 0) {
-            // IP not registered, insert new IP
-            $sql = "INSERT INTO userip (user_id, ip_address, timestamp) VALUES (?, ?, NOW())";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("is", $user_id, $current_ip);
-            if ($stmt->execute()) {
-                echo " New IP address recorded";
-            } else {
-                echo " Failed to record new IP address: " . $stmt->error;
-            }
-        } else {
-            echo " Known IP address used for login";
-        }
+    if ($row === null) {
+        $response['message'] = "Error fetching user data.";
     } else {
-        echo "Invalid password";
+        $hashed_password = $row['password'];
+        $user_id = $row['user_id'];
+
+        if ($user_id === null) {
+            $response['message'] = "Error: User ID is null.";
+        } else {
+            if (password_verify($password, $hashed_password)) {
+                $response['success'] = true; # Login successful
+                $response['user_id'] = $user_id;
+                $current_ip = getClientIP();
+
+                $stmt = $conn->prepare("SELECT ip_id FROM userip WHERE user_id = ? AND ip_address = ?");
+                $stmt->bind_param("is", $user_id, $current_ip);
+                $stmt->execute();
+                $result = $stmt->get_result();
+
+                if ($result->num_rows === 0) {
+                    $stmt = $conn->prepare("INSERT INTO userip (user_id, ip_address, timestamp) VALUES (?, ?, NOW())");
+                    $stmt->bind_param("is", $user_id, $current_ip);
+                    if (!$stmt->execute()) {
+                        $response['message'] .= " Failed to record new IP address: " . $stmt->error;
+                    }
+                } else {
+                    $response['message'] .= " Known IP address used for login";
+                }
+            } else {
+                $response['message'] = "Invalid password";
+            }
+        }
     }
 }
 
 $stmt->close();
 $conn->close();
+
+header('Content-Type: application/json');
+echo json_encode($response);
 ?>
