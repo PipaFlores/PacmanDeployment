@@ -11,8 +11,8 @@ if (!$data) {
 }
 
 // Prepare the query for the 'game' table
-$stmt = $mysqli->prepare("INSERT INTO game (date_played, game_duration, session_number, game_in_session, user_id, source) VALUES (?, ?, ?, ?, ?, ?)");
-$stmt->bind_param('sdiids', $startTime, $gameDuration, $sessionNumber, $gamesInSession, $userId, $source);
+$stmt = $conn->prepare("INSERT INTO game (date_played, game_duration, session_number, game_in_session, user_id, source, win) VALUES (?, ?, ?, ?, ?, ?, ?)");
+$stmt->bind_param('sdiidsi', $startTime, $gameDuration, $sessionNumber, $gamesInSession, $userId, $source, $win);
 
 // Extract game data from JSON
 $startTime = $data['date_played'];
@@ -21,18 +21,18 @@ $sessionNumber = $data['session_number'];
 $gamesInSession = $data['game_in_session'];
 $userId = $data['user_id'];
 $source = $data['source'];
+$win = $data['win'];
 
 // Execute the query and get the inserted game_id
 if ($stmt->execute()) {
-    $gameId = $mysqli->insert_id;
+    $gameId = $conn->insert_id;
 } else {
     die('Error inserting game data: ' . $stmt->error);
 }
 $stmt->close();
 
-
 // Prepare the query for the 'gamestate' table to use POINT data type for player and ghosts
-$stmt = $mysqli->prepare("
+$stmt = $conn->prepare("
     INSERT INTO gamestate (
         game_id, 
         pacman_pos, 
@@ -51,7 +51,7 @@ $stmt = $mysqli->prepare("
         pellets, 
         powerPellets
     ) VALUES (?, ST_PointFromText(?), ST_PointFromText(?), ST_PointFromText(?), ST_PointFromText(?), ST_PointFromText(?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-$stmt->bind_param('isssssiiiisiiifii', 
+$stmt->bind_param('isssssiiiiiiidii' , 
     $gameId, 
     $playerPosition, 
     $ghost1Position, 
@@ -112,4 +112,4 @@ foreach ($data['dataPoints'] as $point) {
     }
 }
 $stmt->close();
-
+$conn->close();
