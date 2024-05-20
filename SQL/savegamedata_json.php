@@ -49,9 +49,13 @@ $stmt = $conn->prepare("
         lives, 
         time_elapsed, 
         pellets, 
-        powerPellets
-    ) VALUES (?, ST_PointFromText(?), ST_PointFromText(?), ST_PointFromText(?), ST_PointFromText(?), ST_PointFromText(?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-$stmt->bind_param('isssssiiiiiiidii' , 
+        powerPellets,
+        powerpelletstate_1,
+        powerpelletstate_2,
+        powerpelletstate_3,
+        powerpelletstate_4) 
+        VALUES (?, ST_PointFromText(?), ST_PointFromText(?), ST_PointFromText(?), ST_PointFromText(?), ST_PointFromText(?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"); 
+$stmt->bind_param('isssssiiiiiiidiiiiii' , 
     $gameId, 
     $playerPosition, 
     $ghost1Position, 
@@ -67,7 +71,11 @@ $stmt->bind_param('isssssiiiiiiidii' ,
     $lives, 
     $timeElapsed, 
     $pelletsRemaining, 
-    $powerPelletsRemaining);
+    $powerPelletsRemaining,
+    $powerPelletState1,
+    $powerPelletState2,
+    $powerPelletState3,
+    $powerPelletState4);
 
 // Iterate through each game data point
 foreach ($data['dataPoints'] as $point) {
@@ -82,6 +90,13 @@ foreach ($data['dataPoints'] as $point) {
         $ghostPositions[] = "POINT(" . $gpos['x'] . " " . $gpos['y'] . ")";
         $ghostStates[] = $point['ghostStates'][$index];
     }
+
+    // Handling multiple power pellet states
+    $powerPelletState1 = $point['powerPelletStates'][0];
+    $powerPelletState2 = $point['powerPelletStates'][1];
+    $powerPelletState3 = $point['powerPelletStates'][2];
+    $powerPelletState4 = $point['powerPelletStates'][3];
+
 
     // Pad the ghostPositions array to ensure there are always four values
     while (count($ghostPositions) < 4) {
