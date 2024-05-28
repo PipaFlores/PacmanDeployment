@@ -11,8 +11,8 @@ if (!$data) {
 }
 
 // Prepare the query for the 'game' table
-$stmt = $conn->prepare("INSERT INTO game (date_played, game_duration, session_number, game_in_session, user_id, source, win) VALUES (?, ?, ?, ?, ?, ?, ?)");
-$stmt->bind_param('sdiidsi', $startTime, $gameDuration, $sessionNumber, $gamesInSession, $userId, $source, $win);
+$stmt = $conn->prepare("INSERT INTO game (date_played, game_duration, session_number, game_in_session, user_id, source, win, level) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+$stmt->bind_param('sdiidsii', $startTime, $gameDuration, $sessionNumber, $gamesInSession, $userId, $source, $win, $level);
 
 // Extract game data from JSON
 $startTime = $data['date_played'];
@@ -22,6 +22,7 @@ $gamesInSession = $data['game_in_session'];
 $userId = $data['user_id'];
 $source = $data['source'];
 $win = $data['win'];
+$level = $data['level'];
 
 // Execute the query and get the inserted game_id
 if ($stmt->execute()) {
@@ -53,9 +54,11 @@ $stmt = $conn->prepare("
         powerpelletstate_1,
         powerpelletstate_2,
         powerpelletstate_3,
-        powerpelletstate_4) 
-        VALUES (?, ST_PointFromText(?), ST_PointFromText(?), ST_PointFromText(?), ST_PointFromText(?), ST_PointFromText(?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"); 
-$stmt->bind_param('isssssiiiiiiidiiiiii' , 
+        powerpelletstate_4,
+        fruitState_1,
+        fruitState_2) 
+        VALUES (?, ST_PointFromText(?), ST_PointFromText(?), ST_PointFromText(?), ST_PointFromText(?), ST_PointFromText(?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"); 
+$stmt->bind_param('isssssiiiiiiidiiiiiiii' , 
     $gameId, 
     $playerPosition, 
     $ghost1Position, 
@@ -75,7 +78,9 @@ $stmt->bind_param('isssssiiiiiiidiiiiii' ,
     $powerPelletState1,
     $powerPelletState2,
     $powerPelletState3,
-    $powerPelletState4);
+    $powerPelletState4,
+    $fruitState1,
+    $fruitState2);
 
 // Iterate through each game data point
 foreach ($data['dataPoints'] as $point) {
@@ -120,6 +125,8 @@ foreach ($data['dataPoints'] as $point) {
     $timeElapsed = $point['timeElapsed'];
     $pelletsRemaining = $point['pelletsRemaining'];
     $powerPelletsRemaining = $point['powerPelletsRemaining'];
+    $fruitState1 = $point['fruitState_1'];
+    $fruitState2 = $point['fruitState_2'];
 
     // Execute the insert statement for each game state
     if (!$stmt->execute()) {
