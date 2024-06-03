@@ -19,12 +19,114 @@ $stmt_sessions->execute();
 $result_sessions = $stmt_sessions->get_result();
 $sessions = $result_sessions->fetch_assoc();
 
+// Fetch survey status from REDCap
+$data = array(
+    'token' => $API_TOKEN,
+    'content' => 'record',
+    'action' => 'export',
+    'format' => 'json',
+    'type' => 'flat',
+    'records' => array($user_id),
+    'fields' => array('consent_complete', 'survey_complete'),
+    'rawOrLabel' => 'raw',
+    'rawOrLabelHeaders' => 'raw',
+    'exportCheckboxLabel' => 'false',
+    'exportSurveyFields' => 'false',
+    'exportDataAccessGroups' => 'false',
+    'returnFormat' => 'json'
+);
+
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, 'https://redcap.helsinki.fi/redcap/api/');
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+curl_setopt($ch, CURLOPT_VERBOSE, 0);
+curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+curl_setopt($ch, CURLOPT_AUTOREFERER, true);
+curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
+curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+curl_setopt($ch, CURLOPT_FRESH_CONNECT, 1);
+curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data, '', '&'));
+$output = curl_exec($ch);
+curl_close($ch);
+
+$survey_status = json_decode($output, true);
+$consent_done = $survey_status[0]['consent_complete'] ?? 0;
+$survey_done = $survey_status[0]['survey_complete'] ?? 0;
+
+// Update the redcapdata table in MySQL
+$sql_update_redcap = "UPDATE redcapdata SET consent_done = ?, survey_done = ? WHERE record_id = ?";
+$stmt_update_redcap = $conn->prepare($sql_update_redcap);
+$stmt_update_redcap->bind_param("iii", $consent_done, $survey_done, $user_id);
+$stmt_update_redcap->execute();
+
+// Fetch survey links from REDCap
+$consent_link = '';
+$survey_link = '';
+
+$data_link_consent = array(
+    'token' => $API_TOKEN,
+    'content' => 'surveyLink',
+    'format' => 'json',
+    'instrument' => 'consent',
+    'event' => '',
+    'record' => $user_id,
+    'returnFormat' => 'json'
+);
+
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, 'https://redcap.helsinki.fi/redcap/api/');
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+curl_setopt($ch, CURLOPT_VERBOSE, 0);
+curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+curl_setopt($ch, CURLOPT_AUTOREFERER, true);
+curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
+curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+curl_setopt($ch, CURLOPT_FRESH_CONNECT, 1);
+curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data_link_consent, '', '&'));
+$output_consent = curl_exec($ch);
+curl_close($ch);
+
+$consent_link = $output_consent;
+
+$data_link_survey = array(
+    'token' => $API_TOKEN,
+    'content' => 'surveyLink',
+    'format' => 'json',
+    'instrument' => 'survey',
+    'event' => '',
+    'record' => $user_id,
+    'returnFormat' => 'json'
+);
+
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, 'https://redcap.helsinki.fi/redcap/api/');
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+curl_setopt($ch, CURLOPT_VERBOSE, 0);
+curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+curl_setopt($ch, CURLOPT_AUTOREFERER, true);
+curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
+curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+curl_setopt($ch, CURLOPT_FRESH_CONNECT, 1);
+curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data_link_survey, '', '&'));
+$output_survey = curl_exec($ch);
+curl_close($ch);
+
+$survey_link = $output_survey;
+
+
 // Output data in JSON format
 $response = array(
     'total_games' => (int)$games['total_games'], // Ensure the count is returned as integer
-    'last_session' => (int)$sessions['last_session']
+    'last_session' => (int)$sessions['last_session'],
+    'consent_done' => $consent_done,
+    'survey_done' => $survey_done,
+    'consent_link' => $consent_link,
+    'survey_link' => $survey_link
 );
-echo json_encode($response);
+echo json_encode($response, JSON_UNESCAPED_SLASHES);
 
 // Close connection
 $conn->close();
