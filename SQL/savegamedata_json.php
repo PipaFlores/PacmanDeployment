@@ -56,9 +56,11 @@ $stmt = $conn->prepare("
         powerpelletstate_3,
         powerpelletstate_4,
         fruitState_1,
-        fruitState_2) 
-        VALUES (?, ST_PointFromText(?), ST_PointFromText(?), ST_PointFromText(?), ST_PointFromText(?), ST_PointFromText(?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"); 
-$stmt->bind_param('isssssiiiiiiidiiiiiiii' , 
+        fruitState_2,
+        input_direction,
+        movement_direction) 
+        VALUES (?, ST_PointFromText(?), ST_PointFromText(?), ST_PointFromText(?), ST_PointFromText(?), ST_PointFromText(?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"); 
+$stmt->bind_param('isssssiiiiiiidiiiiiiiiss' , 
     $gameId, 
     $playerPosition, 
     $ghost1Position, 
@@ -80,13 +82,17 @@ $stmt->bind_param('isssssiiiiiiidiiiiiiii' ,
     $powerPelletState3,
     $powerPelletState4,
     $fruitState1,
-    $fruitState2);
+    $fruitState2,
+    $inputDirection,
+    $movementDirection);
 
 // Iterate through each game data point
 foreach ($data['dataPoints'] as $point) {
     $playerPosX = $point['playerPosition']['x'];
     $playerPosY = $point['playerPosition']['y'];
     $playerPosition = "POINT($playerPosX $playerPosY)";
+    $inputDirection = $point['inputDirection'];
+    $movementDirection = $point['movementDirection'];
 
     // Handling multiple ghosts
     $ghostPositions = [];
