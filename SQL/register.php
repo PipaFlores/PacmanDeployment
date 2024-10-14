@@ -69,7 +69,7 @@ try {
         throw new Exception("Error initializing redcapdata: " . $stmt->error);
     }
 
-    // Create a new record in REDCap
+    // Create a new record in REDCap with the same value as the user_id
     $data = array(
         'token' => $API_TOKEN,
         'content' => 'record',
