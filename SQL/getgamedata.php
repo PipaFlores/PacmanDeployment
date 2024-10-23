@@ -1,10 +1,11 @@
 <?php
 include 'db_connect.php';
+include 'utils.php';
 
 $user_id = isset($_GET['user_id']) ? intval($_GET['user_id']) : 0;
 
 // SQL to count games
-$sql_games = "SELECT COUNT(*) AS total_games FROM game WHERE user_id = ?";
+$sql_games = "SELECT total_games_played AS total_games FROM game WHERE user_id = ? ORDER BY game_id DESC LIMIT 1";
 $stmt_games = $conn->prepare($sql_games);
 $stmt_games->bind_param("i", $user_id);
 $stmt_games->execute();
@@ -37,20 +38,8 @@ $data = array(
     'returnFormat' => 'json'
 );
 
-// Initialize cURL
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, 'https://redcap.helsinki.fi/redcap/api/');
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-curl_setopt($ch, CURLOPT_VERBOSE, 0);
-curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-curl_setopt($ch, CURLOPT_AUTOREFERER, true);
-curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
-curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-curl_setopt($ch, CURLOPT_FRESH_CONNECT, 1);
-
-// Set the POST fields,  in this case for the data (consent_complete and survey_complete)
-curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data, '', '&'));
+// Initialize cURL sessiond
+$ch = initializeCurl_Post('https://redcap.helsinki.fi/redcap/api/', $data);
 $output = curl_exec($ch);
 
 // Decode the output from REDCap API
