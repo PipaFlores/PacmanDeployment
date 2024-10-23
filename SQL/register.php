@@ -1,19 +1,6 @@
 <?php
 include 'db_connect.php'; // Assume you have saved the connection code in 'db_connect.php'
-
-function getClientIP() {
-    // Check for HTTP headers set by proxies
-    if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-        // The first IP in the list is usually the original client
-        $ip = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0];
-    } elseif (isset($_SERVER['HTTP_CLIENT_IP'])) {
-        $ip = $_SERVER['HTTP_CLIENT_IP'];
-    } else {
-        // Fall back to REMOTE_ADDR
-        $ip = $_SERVER['REMOTE_ADDR'];
-    }
-    return trim($ip);
-}
+include 'utils.php'; // REDCAP API functions.
 
 $username = $_POST['username'];
 $password = $_POST['password'];
@@ -69,40 +56,7 @@ try {
         throw new Exception("Error initializing redcapdata: " . $stmt->error);
     }
 
-    // Create a new record in REDCap with the same value as the user_id
-    $data = array(
-        'token' => $API_TOKEN,
-        'content' => 'record',
-        'action' => 'import',
-        'format' => 'csv',
-        'type' => 'flat',
-        'overwriteBehavior' => 'normal',
-        'forceAutoNumber' => 'false',
-        'data' => "record_id\n$user_id",
-        'dateFormat' => 'DMY',
-        'returnContent' => 'count',
-        'returnFormat' => 'json'
-    );
-
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, 'https://redcap.helsinki.fi/redcap/api/');
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_VERBOSE, 0);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    curl_setopt($ch, CURLOPT_AUTOREFERER, true);
-    curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
-    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-    curl_setopt($ch, CURLOPT_FRESH_CONNECT, 1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data, '', '&'));
-    $output = curl_exec($ch);
-    curl_close($ch);
-
-    $response = json_decode($output, true);
-    if ($response['count'] !== 1) {
-        throw new Exception("Error creating REDCap record: " . $output);
-    }
-
+    CreateREDCapRecord($user_id, $API_TOKEN); // Create a REDCap record with the same user_id as record_id
     // Commit transaction
     $conn->commit();
     echo "User registered successfully, IP address recorded, redcapdata row initialized, and REDCap record created";

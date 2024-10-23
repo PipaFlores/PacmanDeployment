@@ -11,14 +11,15 @@ if (!$data) {
 }
 
 // Prepare the query for the 'game' table
-$stmt = $conn->prepare("INSERT INTO game (date_played, game_duration, session_number, game_in_session, user_id, source, win, level) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-$stmt->bind_param('sdiidsii', $startTime, $gameDuration, $sessionNumber, $gamesInSession, $userId, $source, $win, $level);
+$stmt = $conn->prepare("INSERT INTO game (date_played, game_duration, session_number, game_in_session, user_id, source, win, level, total_games_played) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+$stmt->bind_param('sdiidsiii', $startTime, $gameDuration, $sessionNumber, $gamesInSession, $userId, $source, $win, $level, $total_games);
 
 // Extract game data from JSON
 $startTime = $data['date_played'];
 $gameDuration = $data['game_duration'];
 $sessionNumber = $data['session_number'];
 $gamesInSession = $data['game_in_session'];
+$total_games = $data['total_games'];
 $userId = $data['user_id'];
 $source = $data['source'];
 $win = $data['win'];
