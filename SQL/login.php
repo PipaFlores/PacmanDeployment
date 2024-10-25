@@ -1,19 +1,7 @@
 <?php
 include 'db_connect.php';
+include 'utils.php';
 
-function getClientIP() {
-    // Check for HTTP headers set by proxies
-    if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-        // The first IP in the list is usually the original client
-        $ip = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0];
-    } elseif (isset($_SERVER['HTTP_CLIENT_IP'])) {
-        $ip = $_SERVER['HTTP_CLIENT_IP'];
-    } else {
-        // Fall back to REMOTE_ADDR
-        $ip = $_SERVER['REMOTE_ADDR'];
-    }
-    return trim($ip);
-}
 
 $username = $_POST['username'];
 $password = $_POST['password'];
