@@ -42,8 +42,8 @@ function initializeCurl_Post($url, $postData) {
 }
 
 /**
- * Creates a new REDCap record with the given user ID.
- * 
+ * Creates a new record in the REDCap database with the given user ID.
+ * ds
  * @param int $user_id The user ID to be used as the record ID in REDCap.
  * @param string $API_TOKEN The API token for the REDCap project.
  * @throws Exception If an error occurs during the creation of the REDCap record.
