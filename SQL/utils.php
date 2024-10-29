@@ -115,4 +115,48 @@ function exportREDCapsurveydata($user_id, $API_TOKEN, $total_games ,$val, $ar, $
     }
     return $response;
 }
+
+/**
+ * Validates the input data for game data.
+ * 
+ * @param array $data The game data to be validated.
+ * @return array An array of error messages if any validation errors are found, or an empty array if no errors are found.
+ */
+function validategamedataInput($data) {
+    $errors = [];
+    
+    // Numeric validations
+    if (!is_numeric($data['game_duration']) || $data['game_duration'] < 0) {
+        $errors[] = "Invalid game duration";
+    }
+    if (!is_int($data['session_number']) || $data['session_number'] < 0) {
+        $errors[] = "Invalid session number";
+    }
+    if (!is_int($data['game_in_session']) || $data['game_in_session'] < 0) {
+        $errors[] = "Invalid game in session";
+    }
+    if (!is_int($data['total_games']) || $data['total_games'] < 0) {
+        $errors[] = "Invalid total games";
+    }
+    if (!is_int($data['level']) || $data['level'] < 0) {
+        $errors[] = "Invalid level";
+    }
+    
+    // User ID validation
+    if (!is_numeric($data['user_id'])) {
+        $errors[] = "Invalid user ID format";
+    }
+    
+    // Date validation
+    if (!strtotime($data['date_played'])) {
+        $errors[] = "Invalid date format";
+    }
+    
+    // Win validation
+    if (!is_bool($data['win']) && !in_array($data['win'], [0, 1])) {
+        $errors[] = "Invalid win value";
+    }
+    
+    return $errors;
+}
 ?>
