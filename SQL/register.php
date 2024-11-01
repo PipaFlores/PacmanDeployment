@@ -6,7 +6,7 @@ $username = $_POST['username'];
 $password = $_POST['password'];
 $email = $_POST['email'];
 
-$response = ['success' => false, 'message' => ''];
+$response = ['success' => false, 'message' => '', 'user_id' => 0];
 
 // Hash the password using bcrypt algorithm
 $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
@@ -51,7 +51,7 @@ try {
     }
 
     // Initialize redcapdata row in SQL database
-    $sql = "INSERT INTO redcapdata (record_id, consent_done, survey_done, sam_submissions) VALUES (?, 0, 0, 0)";
+    $sql = "INSERT INTO redcapdata (record_id, consent_done, survey_done, sam_submissions) VALUES (?, 2, 0, 0)";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $user_id);
     if (!$stmt->execute()) {
@@ -63,6 +63,7 @@ try {
     // Commit transaction
     $conn->commit();
     $response['success'] = true;
+    $response['user_id'] = $user_id;
     $response['message'] = "User registered successfully, IP address recorded, redcapdata row initialized, and REDCap record created";
 } catch (Exception $e) {
     // Rollback transaction
