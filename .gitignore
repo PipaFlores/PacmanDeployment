@@ -1,4 +1,7 @@
+.gitignore
 wamplangues
 wampthemes/
 SQL/db_connect.php
 set_permissions.sh
+set_permissions_dev.sh
+logs/

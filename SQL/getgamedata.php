@@ -12,6 +12,8 @@ $stmt_games->execute();
 $result_games = $stmt_games->get_result();
 $games = $result_games->fetch_assoc();
 
+$total_games = ($games !== null) ? (int)$games['total_games'] : 0;
+
 // SQL to get the last session number, default to 0 if no sessions
 $sql_sessions = "SELECT COALESCE(MAX(session_number), 0) AS last_session FROM game WHERE user_id = ?";
 $stmt_sessions = $conn->prepare($sql_sessions);
@@ -95,7 +97,7 @@ curl_close($ch);
 
 // Output data in JSON format
 $response = array(
-    'total_games' => (int)$games['total_games'], // Ensure the count is returned as integer
+    'total_games' => $total_games, // Ensure the count is returned as integer
     'last_session' => (int)$sessions['last_session'],
     'consent_done' => $consent_done,
     'survey_done' => $survey_done,
