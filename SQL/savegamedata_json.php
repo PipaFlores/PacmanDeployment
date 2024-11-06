@@ -32,6 +32,24 @@ try {
     $gamesInSession = $data['game_in_session'];
     $total_games = $data['total_games'];
     $userId = $data['user_id'];
+
+    // Check for existing game within a 5-second window
+    $stmt = $conn->prepare("
+    SELECT 1 FROM game 
+    WHERE user_id = ? 
+    AND total_games_played = ?
+    AND ABS(TIMESTAMPDIFF(SECOND, date_played, ?)) <= 5
+    FOR UPDATE
+    ");
+    $stmt->bind_param('sis', $userId, $total_games, $startTime);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+    throw new Exception('Duplicate game data detected. Skipping save.');
+    }
+    $stmt->close();
+
     $source = $data['source'];
     $win = $data['win'];
     $level = $data['level'];
@@ -167,6 +185,26 @@ try {
 } catch (Exception $e) {
     $conn->rollback();
     $response["message"] = $e->getMessage();
+    // Add detailed logging for duplicate requests
+    if (strpos($e->getMessage(), 'Duplicate game data') !== false) {
+        error_log(sprintf(
+            "[DUPLICATE_GAME] User: %d, Total Games: %d, Time: %s, IP: %s, Request Time: %s",
+            $userId,
+            $total_games,
+            $startTime,
+            $_SERVER['REMOTE_ADDR'],
+            date('Y-m-d H:i:s')
+        ));
+    } else {
+        // Log other errors too
+        error_log(sprintf(
+            "[GAME_SAVE_ERROR] %s - User: %d, IP: %s",
+            $e->getMessage(),
+            $userId,
+            $_SERVER['REMOTE_ADDR']
+        ));
+    }
+
 } finally {
     // Clean up
     if (isset($stmt)) {
