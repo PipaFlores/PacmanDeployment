@@ -51,7 +51,7 @@ try {
     }
 
     // Initialize redcapdata row in SQL database
-    $sql = "INSERT INTO redcapdata (record_id, consent_done, survey_done, sam_submissions) VALUES (?, 2, 0, 0)";
+    $sql = "INSERT INTO redcapdata (record_id, consent_done, survey_done, sam_submissions, flow_submissions) VALUES (?, 2, 0, 0, 0)";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $user_id);
     if (!$stmt->execute()) {
