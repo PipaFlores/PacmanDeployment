@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity WebGL Player | PacmanUnity</title>
+    <title>Unity WebGL Player | AiPerPacman</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
   </head>
@@ -20,7 +20,7 @@
       <div id="unity-footer">
         <div id="unity-webgl-logo"></div>
         <div id="unity-fullscreen-button"></div>
-        <div id="unity-build-title">PacmanUnity</div>
+        <div id="unity-build-title">AiPerPacman</div>
       </div>
     </div>
     <script>
@@ -57,14 +57,14 @@
       }
 
       var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/pilot5.loader.js";
+      var loaderUrl = buildUrl + "/Release_pilot.loader.js";
       var config = {
-        dataUrl: buildUrl + "/pilot5.data.unityweb",
-        frameworkUrl: buildUrl + "/pilot5.framework.js.unityweb",
-        codeUrl: buildUrl + "/pilot5.wasm.unityweb",
+        dataUrl: buildUrl + "/Release_pilot.data.unityweb",
+        frameworkUrl: buildUrl + "/Release_pilot.framework.js.unityweb",
+        codeUrl: buildUrl + "/Release_pilot.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "AiPerCog",
-        productName: "PacmanUnity",
+        productName: "AiPerPacman",
         productVersion: "2.0",
         showBanner: unityShowBanner,
       };
