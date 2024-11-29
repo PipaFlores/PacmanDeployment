@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity WebGL Player | AiPerPacman</title>
+    <title>AiPerPacman Research Game</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
   </head>
@@ -109,6 +109,21 @@
                 loadingBar.style.display = "none";
                 fullscreenButton.onclick = () => {
                   unityInstance.SetFullscreen(1);
+                };
+
+                // Add this: Store unity instance globally
+                window.gameInstance = unityInstance;
+
+                // Add the onbeforeunload handler
+                window.onbeforeunload = function(e) {
+                    console.log("Calling OnClose from Browser!");
+                    if (window.gameInstance) {
+                        window.gameInstance.SendMessage("OnCloseObject", "OnClose");
+                    }
+                    
+                    var dialogText = "Please don't leave the game before the survey is completed.";
+                    e.returnValue = dialogText;
+                    return dialogText;
                 };
               }).catch((message) => {
                 alert(message);
