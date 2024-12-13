@@ -4,7 +4,7 @@ AddType text/css .gz .css
 AddType application/octet-stream .data
 AddType application/octet-stream .mem
 
-DirectoryIndex index.html
+DirectoryIndex maintenance.html
 
 <FilesMatch "\.js\.gz$">
     ForceType application/javascript
